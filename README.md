@@ -1,24 +1,21 @@
-stanford_pipeline
-=================
+# Stanford Pipeline
 
-Program to run scraped news stories through Stanford's CoreNLP program.
+ A fork of the OEDA Stanford Pipeline. See the original repo for more detailed information:
+ https://github.com/openeventdata/stanford_pipeline
 
-The program pulls stories added to the database within the past day and that
-aren't currently parsed using CoreNLP. Once parsed, the parsetrees are placed
-back into the database. The program is currently set to proccess the first six
-sentences of a story.
+ ## Prerequisites
 
-This program makes extensive use of Brendan O'Connor's
-[wrapper](https://github.com/brendano/stanford-corepywrapper) for CoreNLP. The
-current install comes from my (John Beieler)
-[fork](https://github.com/johnb30/stanford-corepywrapper). The config file for
-CoreNLP makes use of the shift-reduce parser introduced in CoreNLP 3.4.
+ The stanford pipeline expects stories to be populated in MongoDB. It reads stories from Mongo and parses sentences into parse trees (sentence diagrams). This step is crucial for allowing the later parts of the event coding pipeline to work.
 
-CoreNLP Setup
---------
+## Install
 
-This pipeline depends on having CoreNLP 3.4 with the shift-reduce parser.
-Download the models like this:
+### Clone the Repo
+
+```git clone https://github.com/dgmurphy/stanford_pipeline.git```
+
+```cd stanford_pipeline```
+
+### Download the Core NLP Models
 
 ```
 wget http://nlp.stanford.edu/software/stanford-corenlp-full-2014-06-16.zip
@@ -28,22 +25,39 @@ cd stanford-corenlp
 wget http://nlp.stanford.edu/software/stanford-srparser-2014-07-01-models.jar
 ```
 
-If errors persist, try changing the path in `default_config.ini` from the
-relative path `~/stanford-corenlp` to the full path (e.g.)
-`/home/ahalterman/stanford-corenlp`.
+In the file default_config.ini edit the line:
 
-Configuration
------------
+`stanford_dir = ~/stanford-corenlp`
 
-The `default_config.ini` file has several options that can be changed,
-including the MongoDB database and collection of stories to process and whether
-all unparsed stories should be processed or just the stories added in the last
-day.
+to use the full path to the stanford-corenlp dir, e.g.:
 
-Usage
------
+`stanford_dir = /home/dmurphy/dev/oeda/stanford_pipeline/stanford-corenlp`
 
-`python process.py`
+### Create Python Environment & Install libraries
 
-Up to a minute of `[Errno 111] Connection refused` messages are normal during
-startup.
+In the stanford_pipeline directory create a Python2 virtual environment:
+
+```virtualenv -p /usr/bin/python2.7 venv```
+
+Activate the virtual environment:
+
+```source venv/bin/activate```
+
+Check: make sure your linux command prompt starts with '(venv)'
+
+### Install Python Libraries
+
+```pip install -r requirements.txt```
+
+
+### Execute a Test Run
+
+```python process.py```
+
+Up to a minute of [Errno 111] Connection refused messages are normal during startup.
+
+Check: The command line should show "processing story" messages.
+
+### MongoDB
+
+Check the 'stories' collection in the 'event_scrape' database to view the scraped content with parse trees.
